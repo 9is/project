@@ -1,0 +1,45 @@
+'''
+Supervised data:always has one or multiple targets associated with it.Required to predict a value.
+  Rows = samples, columns = features, with a targets or label.
+  The target is categorical, this is a classification problem. The target is real number, is a regression problem.
+Unsupervised data: does not have any target variable.More chanllenging to deal with.
+  Credit card transactions. Fraud or genuine. Clustering is one of the approaches can be used to tackle this problem. 
+  Principal Component Analysis(PAC), t-distributed Stochastic Neighbour Embedding(t-SNE) etc.
+Convert a supervised dataset to unsupervised to see how they look like when plotted. MNIST. t-SNE, 
+'''
+import matplotlib.pyplot as plt
+import numpy as np   
+import pandas as pd 
+import seaborn as sns
+
+from sklearn import datasets
+from sklearn import mainfold
+
+%matplotlib inline
+
+data = datasets.fetch_openml(
+                'mnist_784',
+                version=1,
+                return_X_y= True
+)
+pixel_values, targets = data #二维数组，70000*784（28*28）
+targets = targets.astype(int) #把字符串转换成整数
+
+single_image = pixxel_value[1,:].reshape(28, 28)
+
+plt.imshow(single_image, cmap = 'gray')
+
+tsne = manifold.TSNE(n_components=2,random_state=42)
+
+transformed_data = tsne.fit_transform(pixel_values[:3000,:])
+
+tsne_df = pd.DataFrame(
+    np.column_stack((transformed_data, targets[:3000])),
+    columns=["x", "y", "targets"]
+)
+
+tsne_df.loc[:,"targests"] = tsne_df.targets/astype(int)
+
+grid = sns.FacetGrid(tsne_df, hue="targets",size=8)
+
+grid.map(plt.scatter, "x", "y").add_legend()
