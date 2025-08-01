@@ -1,0 +1,16 @@
+三、数据类型
+数据类型，将浮点数转换成整数，负数向上取整，正数向下取整。
+数据类型有strings(字符型),float(浮点型),integers(整型),booleans(布尔值)四种。
+If you multiply a string by a boolean with value True, it just returns that same string. 字符串*布尔值1，返回相同字符串。
+And if you multiply a string by a boolean with value False, it returns an empty string (or a string with length zero).字符串*布尔值0，返回空字符串。
+四、条件函数（if）和条件判断
+赋值的时候用的符号是==
+多重条件判定：
+def 函数名(参数):
+    if 条件1:
+        返回结果1
+    elif 条件2:
+        返回结果2
+    else:
+        返回结果3
+    return 结果
