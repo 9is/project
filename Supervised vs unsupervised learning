@@ -1,3 +1,4 @@
+Chapter 2 Supervised vs unsupervised learning 监督学习和无监督学习
 '''
 Supervised data:always has one or multiple targets associated with it.Required to predict a value.
   Rows = samples, columns = features, with a targets or label.
@@ -43,3 +44,129 @@ tsne_df.loc[:,"targests"] = tsne_df.targets/astype(int)
 grid = sns.FacetGrid(tsne_df, hue="targets",size=8)
 
 grid.map(plt.scatter, "x", "y").add_legend()
+
+Chapter 3 Cross-validation 交叉验证
+Cross-validation is a step in the process of building a machine learning model which helps us ensure that our models fit the data accurately and also ensures that we do not overfit.
+交叉验证的定义：确保模型正确拟合数据且没有过拟合。
+什么是过拟合？在训练集拟合效果好，但是在测试集表现不佳。
+给出了一个红葡萄酒品质案例。
+
+import pandas as pd
+df = pd.read_("winequality-red.csv")
+
+因为quality values只有6类，所以
+# a mapping dictionary that maps the quality values from 0 to 5
+quality_mapping = {
+  3:0,
+  4:1,
+  5:2,
+  6:3,
+  7:4,
+  8:5
+}
+df.loc[:, "quality"] = df.quality.map(quaility_mapping)
+
+如果是分类问题，可以用很多方法，比如neural networks神经网络，但是一开始就用NN太夸张了，所以先用简单也能可视化的决策树decision trees。把数据集分为两部分，有1599条，1000条作为training，用下边的代码。
+#use sample with face=1 to shuffle the dataframe, we reset the indices since they change after shuffling the dataframe.
+df = df.sample(face=1).reset_index(drop=True)
+
+#前一千行为训练集
+df_train = df.head(1000)
+#最后599条作为testing/validation
+df_test = df.tail(599)
+
+现在用训练集训练一个决策树模型，会用scikit-learn.
+from sklearn import tree
+from sklearn import metrics
+
+#最初的tree分类最大深度3
+clf = tree.DecisionTreeClassifier(max_depth=3)
+#选择要训练的列
+cols = ['fixed acidity',
+        'volatile acidity',
+        'citric acid',
+        'residual suger',
+        'chlorides',
+        'free sulfur dioxide',
+        'total sulfur dioxide',
+        'density',
+        'ph',
+        'sulphates',
+        'alchohl',]
+#拟合模型
+clf.fit(df_train[cols], df_train.quality)
+现在来检验下准确性。
+#在训练集中生成一个预测值
+train_predictions = clf.predict(df_train[cols])
+#在测试集生成一个预测值
+test_predictions = clf.predict(df_test[cols])
+#计算训练集准确性
+train_accuracy = metrics.accuracy_score(df_train.quality, train_predictions)
+#计算测试集准确性
+test_accuracy = metrics.accuracy_score(df_test.quality, test_predictions)
+训练集和测试集的得分分别58.9%，54.25%。
+把树身增加到7，结果变为76.6%，57.3%。
+下面要作图，看下不同树深的准确性。
+from sklearn import tree
+from sklearn import metrics
+import matplotlib
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+matplotlib.rc('xtick', labelsize=20)
+matplotlib.rc('ytick', labelsize=20)
+#这一行确保plot在notebook里展示
+%matplotlib inline
+#设置一个列表储存训练集和测试集的准确性，从0.5开始
+train_accuracies = [0.5]
+test_accuracies = [0.5]
+#迭代不同深度
+for depth in range(1,25):
+  clf = tree.DecisionTreeClassifier(max_depth=depth)
+  #训练集的特征，可在循环外做
+  cols = ['fixed acidity',
+        'volatile acidity',
+        'citric acid',
+        'residual suger',
+        'chlorides',
+        'free sulfur dioxide',
+        'total sulfur dioxide',
+        'density',
+        'ph',
+        'sulphates',
+        'alchohl',
+        ]
+  #根据给出的特征拟合模型
+  clf.fit(df_train[cols], df_train.quality)
+  #创建训练集和测试集的预测值
+  train_predictions = clf.predict(df_train[cols])
+  test_predictions = clf.predict(df_test[cols])
+  #计算准确性
+  train_accuracy = metrics.accuracy_score(df_train.quality, train_predictions)
+  test_accuracy = metrics.accuracy_score(df_test.quality, test_predictions)
+  #append 增加准确性
+  train_accuracies.append(train_accuracy)
+  test_accuracies.append(test_accuracy)
+
+#用matplotlib 和seaborn作图
+plt.figure(figsize=(10,5)) #创建一个新的图形窗口，10英寸宽5英寸高
+sns.set_style("whitegrid") #绘画风格是白色背景带网格线
+plt.plot(train_accuracies, label="train accuracy") #绘制训练准确度（train_accuracies）的折线图，并设置图例标签为"train accuracy"。
+plt.plot(test_accuracies, label="test accuracy") #绘制测试准确度（test_accuracies）的折线图，并设置图例标签为"test accuracy"。
+plt.legend(loc="upper left", prop={'size'：15}) #图例位置在左上，prop参数应该是一个字典，用于设置字体属性
+plt.xticks(range(0,26,5)) #设置x轴的刻度位置，从0开始，到25结束（不包括26），步长为5。所以刻度位置为0,5,10,15,20,25。
+plt.xlabel("max_depth",size=20) #设置x轴的标签为"max_depth"，并设置字体大小为20。
+plt.ylabel("accuracy",size=20) #设置y轴的标签为"accuracy"，并设置字体大小为20。
+plt.show() #显示图形
+
+能看出在max_depth=14时test集表现最好，再增加，test accuracy不会再增加，只会维持甚至变糟糕；但是train accuracy却一直增加，这就是过拟合：训练集拟合完美但测试集效果不佳。
+过拟合的另一个定义是：继续增加训练损失时，测试损失也在增加。在神经网络中很常见。
+在神经网络的训练中，必须监控loss，在某一点时test loss达到最小，当验证损失（test/validation loss）达到最小值时必须停止训练。
+
+
+
+
+
+
+
+
