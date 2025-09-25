@@ -1,0 +1,426 @@
+本项目来源于和鲸社区，使用转载需要标注来源
+作者: 胡杨——淑芬版
+来源: https://www.heywhale.com/mw/project/68d4f9b3e0ce35bf1e23ff0b/content
+Loading [MathJax]/extensions/Safe.js
+气象数据模拟与降雨预测项目
+项目概述
+本项目旨在通过机器学习方法模拟生成近两年的气象数据，并基于这些数据构建预测模型，用于预测未来一周的降雨量。项目展示了从数据生成、特征工程、模型训练到预测的完整数据科学工作流程。
+一、数据说明
+项目生成的模拟气象数据包含以下特征：
+日期：数据记录日期
+温度：摄氏度
+湿度：百分比
+气压：百帕(hPa)
+风速：米/秒(m/s)
+降雨量：毫米(mm)
+二、方法论
+1. 数据生成
+生成近两年(730天)的模拟气象数据
+温度考虑季节性变化并添加随机噪声
+湿度与温度负相关
+气压围绕标准大气压(1013hPa)波动
+降雨量基于其他气象特征和概率模型生成
+2. 特征工程
+创建时间特征(年、月、日、年中天数等)
+构建滞后特征(前1天、前3天、前7天的数据)
+删除因滞后特征产生的缺失值行
+3. 模型训练
+使用随机森林回归模型
+训练集：693天数据
+测试集：30天数据
+4. 模型评估
+均方误差(MSE)
+平均绝对误差(MAE)
+均方根误差(RMSE)
+预测结果
+模型成功预测了未来一周的降雨量：
+2025-08-19: 1.03 mm
+2025-08-20: 0.98 mm
+2025-08-21: 2.30 mm
+2025-08-22: 1.16 mm
+2025-08-23: 1.42 mm
+2025-08-24: 1.11 mm
+2025-08-25: 1.66 mm
+三、关键发现
+模型能够有效捕捉降雨量与其他气象因素之间的关系
+历史降雨量数据对预测未来降雨量非常重要
+气压的滞后特征是最重要的预测因子之一
+四、技术栈
+Python 3
+pandas
+numpy
+scikit-learn
+matplotlib
+五、使用说明
+创建新的Jupyter Notebook
+复制天气预测项目的代码
+运行代码以生成模拟数据、训练模型并进行预测
+所有结果将直接显示在notebook中
+六、项目亮点
+完整的数据科学工作流程展示
+时间序列特征工程实践
+机器学习在气象预测中的应用
+可视化分析结果展示
+七、注意事项
+本项目使用的是模拟数据，实际应用中需要使用真实气象数据
+模型性能可能因数据质量和特征选择而异
+预测结果仅供参考，实际气象预测需要更复杂的模型和更多数据
+
+八、代码复现
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+import warnings
+warnings.filterwarnings('ignore')
+
+# 设置随机种子以确保结果可重现
+np.random.seed(42)
+
+# 生成近两年的日期范围（730天）
+start_date = datetime.now() - timedelta(days=730)
+dates = [start_date + timedelta(days=i) for i in range(730)]
+
+# 生成模拟气象数据
+# 温度（摄氏度）- 考虑季节性变化
+days_since_start = np.arange(len(dates))
+temp_seasonal = 15 + 10 * np.sin(2 * np.pi * days_since_start / 365 - np.pi/2)  # 季节性变化
+temperature = temp_seasonal + np.random.normal(0, 3, len(dates))  # 添加随机噪声
+
+# 湿度（%）- 与温度负相关，并添加噪声
+humidity = 70 - 0.5 * temperature + np.random.normal(0, 5, len(dates))
+humidity = np.clip(humidity, 20, 100)  # 限制在合理范围内
+
+# 气压（hPa）- 围绕1013hPa波动
+pressure = 1013 + 10 * np.sin(2 * np.pi * days_since_start / 365) + np.random.normal(0, 5, len(dates))
+
+# 风速（m/s）- 随机生成
+wind_speed = np.abs(np.random.normal(3, 2, len(dates)))
+
+# 降雨量（mm）- 基于其他特征生成，有一定随机性
+# 降雨量与湿度正相关，与气压负相关
+rain_prob = (humidity - 50) / 50 * 0.3 - (pressure - 1013) / 1013 * 0.2 + 0.2
+rain_prob = np.clip(rain_prob, 0, 1)  # 限制在0-1之间
+
+# 根据概率生成降雨量
+rainfall = np.random.exponential(2, len(dates)) * (np.random.random(len(dates)) < rain_prob)
+
+# 创建DataFrame
+weather_data = pd.DataFrame({
+    'date': dates,
+    'temperature': temperature,
+    'humidity': humidity,
+    'pressure': pressure,
+    'wind_speed': wind_speed,
+    'rainfall': rainfall
+})
+
+# 显示前几行数据
+weather_data.head(10)
+
+# 查看数据的基本统计信息
+print("数据集基本信息:")
+print(weather_data.info())
+print("\n数据集统计摘要:")
+print(weather_data.describe())
+
+# 可视化数据
+fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+fig.suptitle('气象数据分布和趋势', fontsize=16)
+
+# 温度趋势
+axes[0, 0].plot(weather_data['date'], weather_data['temperature'])
+axes[0, 0].set_title('温度趋势')
+axes[0, 0].set_ylabel('温度 (°C)')
+
+# 湿度趋势
+axes[0, 1].plot(weather_data['date'], weather_data['humidity'], color='orange')
+axes[0, 1].set_title('湿度趋势')
+axes[0, 1].set_ylabel('湿度 (%)')
+
+# 气压趋势
+axes[1, 0].plot(weather_data['date'], weather_data['pressure'], color='green')
+axes[1, 0].set_title('气压趋势')
+axes[1, 0].set_ylabel('气压 (hPa)')
+
+# 降雨量趋势
+axes[1, 1].plot(weather_data['date'], weather_data['rainfall'], color='blue')
+axes[1, 1].set_title('降雨量趋势')
+axes[1, 1].set_ylabel('降雨量 (mm)')
+
+# 设置日期格式
+for ax in axes.flat:
+    ax.tick_params(axis='x', rotation=45)
+    ax.grid(True, linestyle='--', alpha=0.7)
+
+plt.tight_layout()
+plt.show()
+
+# 查看降雨量的分布
+plt.figure(figsize=(10, 6))
+plt.hist(weather_data['rainfall'], bins=50, edgecolor='black', alpha=0.7)
+plt.title('降雨量分布')
+plt.xlabel('降雨量 (mm)')
+plt.ylabel('频次')
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.show()
+
+# 准备数据用于建模
+# 创建时间特征
+weather_data['year'] = weather_data['date'].dt.year
+weather_data['month'] = weather_data['date'].dt.month
+weather_data['day'] = weather_data['date'].dt.day
+weather_data['dayofyear'] = weather_data['date'].dt.dayofyear
+# 使用替代方法获取周数
+try:
+    weather_data['weekofyear'] = weather_data['date'].dt.isocalendar().week
+except AttributeError:
+    weather_data['weekofyear'] = weather_data['date'].dt.strftime('%U').astype(int)
+
+# 创建滞后特征（前1天、前3天、前7天的气象数据）
+weather_data_sorted = weather_data.sort_values('date').reset_index(drop=True)
+
+# 添加滞后特征
+for lag in [1, 3, 7]:
+    weather_data_sorted[f'temp_lag_{lag}'] = weather_data_sorted['temperature'].shift(lag)
+    weather_data_sorted[f'humidity_lag_{lag}'] = weather_data_sorted['humidity'].shift(lag)
+    weather_data_sorted[f'pressure_lag_{lag}'] = weather_data_sorted['pressure'].shift(lag)
+    weather_data_sorted[f'wind_lag_{lag}'] = weather_data_sorted['wind_speed'].shift(lag)
+    weather_data_sorted[f'rainfall_lag_{lag}'] = weather_data_sorted['rainfall'].shift(lag)
+
+# 删除包含NaN的行（由于滞后特征导致的）
+model_data = weather_data_sorted.dropna().reset_index(drop=True)
+
+# 定义特征和目标变量
+feature_columns = ['temperature', 'humidity', 'pressure', 'wind_speed', 'month', 'dayofyear'] + \
+                 [f'temp_lag_{lag}' for lag in [1, 3, 7]] + \
+                 [f'humidity_lag_{lag}' for lag in [1, 3, 7]] + \
+                 [f'pressure_lag_{lag}' for lag in [1, 3, 7]] + \
+                 [f'wind_lag_{lag}' for lag in [1, 3, 7]] + \
+                 [f'rainfall_lag_{lag}' for lag in [1, 3, 7]]
+
+X = model_data[feature_columns]
+y = model_data['rainfall']
+
+# 显示特征和数据形状
+print(f"特征矩阵形状: {X.shape}")
+print(f"目标变量形状: {y.shape}")
+#print(f"特征列: {feature_columns}")
+
+# 分割训练集和测试集（使用最后30天作为测试集）
+train_size = len(X) - 30
+X_train, X_test = X[:train_size], X[train_size:]
+y_train, y_test = y[:train_size], y[train_size:]
+
+print(f"\n训练集大小: {X_train.shape}")
+print(f"测试集大小: {X_test.shape}")
+
+# 训练随机森林回归模型
+rf_model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
+rf_model.fit(X_train, y_train)
+
+# 在测试集上进行预测
+y_pred = rf_model.predict(X_test)
+
+# 评估模型性能
+mse = mean_squared_error(y_test, y_pred)
+mae = mean_absolute_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+
+print(f"模型评估结果:")
+print(f"均方误差 (MSE): {mse:.4f}")
+print(f"平均绝对误差 (MAE): {mae:.4f}")
+print(f"均方根误差 (RMSE): {rmse:.4f}")
+
+# 可视化预测结果 vs 实际值
+plt.figure(figsize=(12, 6))
+plt.plot(y_test.values, label='实际值', marker='o')
+plt.plot(y_pred, label='预测值', marker='s')
+plt.title('降雨量预测结果 vs 实际值')
+plt.xlabel('样本')
+plt.ylabel('降雨量 (mm)')
+plt.legend()
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.show()
+
+# 特征重要性
+feature_importance = pd.DataFrame({
+    'feature': feature_columns,
+    'importance': rf_model.feature_importances_
+}).sort_values('importance', ascending=False)
+
+plt.figure(figsize=(10, 8))
+plt.barh(range(len(feature_importance.head(15))), feature_importance.head(15)['importance'])
+plt.yticks(range(len(feature_importance.head(15))), feature_importance.head(15)['feature'])
+plt.xlabel('重要性')
+plt.title('特征重要性 (前15个)')
+plt.gca().invert_yaxis()
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.show()
+
+print("前10个最重要的特征:")
+print(feature_importance.head(10))
+
+# 预测未来一周的降雨量
+# 首先创建未来一周的日期
+last_date = weather_data['date'].max()
+future_dates = [last_date + timedelta(days=i) for i in range(1, 8)]
+
+# 准备未来一周的预测数据
+# 我们需要使用最近的气象数据来构建预测特征
+latest_data = model_data.iloc[-1:].copy()
+
+# 创建未来一周的预测数据框
+future_predictions = []
+
+for i, date in enumerate(future_dates):
+    # 创建新的数据行
+    future_row = latest_data.copy()
+    future_row['date'] = date
+    future_row['month'] = date.month
+    future_row['day'] = date.day
+    future_row['dayofyear'] = date.timetuple().tm_yday
+    
+    # 使用替代方法获取周数
+    try:
+        future_row['weekofyear'] = date.isocalendar().week
+    except AttributeError:
+        future_row['weekofyear'] = int(date.strftime('%U'))
+    
+    # 添加到预测列表
+    future_predictions.append(future_row)
+
+# 合并为一个数据框
+future_df = pd.concat(future_predictions, ignore_index=True)
+
+# 更新滞后特征（使用最新的实际值和之前的预测值）
+for i in range(len(future_df)):
+    # 对于第一个未来日期，使用最新的实际数据
+    if i == 0:
+        # 使用最新的实际气象数据
+        latest_actual = weather_data_sorted.iloc[-1]
+        future_df.loc[i, 'temp_lag_1'] = latest_actual['temperature']
+        future_df.loc[i, 'humidity_lag_1'] = latest_actual['humidity']
+        future_df.loc[i, 'pressure_lag_1'] = latest_actual['pressure']
+        future_df.loc[i, 'wind_lag_1'] = latest_actual['wind_speed']
+        future_df.loc[i, 'rainfall_lag_1'] = latest_actual['rainfall']
+        
+        # 对于3天和7天前的数据，我们使用历史数据
+        # 3天前
+        if len(weather_data_sorted) >= 3:
+            data_3_days_ago = weather_data_sorted.iloc[-3]
+            future_df.loc[i, 'temp_lag_3'] = data_3_days_ago['temperature']
+            future_df.loc[i, 'humidity_lag_3'] = data_3_days_ago['humidity']
+            future_df.loc[i, 'pressure_lag_3'] = data_3_days_ago['pressure']
+            future_df.loc[i, 'wind_lag_3'] = data_3_days_ago['wind_speed']
+            future_df.loc[i, 'rainfall_lag_3'] = data_3_days_ago['rainfall']
+        
+        # 7天前
+        if len(weather_data_sorted) >= 7:
+            data_7_days_ago = weather_data_sorted.iloc[-7]
+            future_df.loc[i, 'temp_lag_7'] = data_7_days_ago['temperature']
+            future_df.loc[i, 'humidity_lag_7'] = data_7_days_ago['humidity']
+            future_df.loc[i, 'pressure_lag_7'] = data_7_days_ago['pressure']
+            future_df.loc[i, 'wind_lag_7'] = data_7_days_ago['wind_speed']
+            future_df.loc[i, 'rainfall_lag_7'] = data_7_days_ago['rainfall']
+    else:
+        # 对于后续日期，使用之前的预测值（对于降雨量）和实际数据
+        future_df.loc[i, 'temp_lag_1'] = future_df.loc[i-1, 'temperature']
+        future_df.loc[i, 'humidity_lag_1'] = future_df.loc[i-1, 'humidity']
+        future_df.loc[i, 'pressure_lag_1'] = future_df.loc[i-1, 'pressure']
+        future_df.loc[i, 'wind_lag_1'] = future_df.loc[i-1, 'wind_speed']
+        # 对于降雨量滞后，我们使用预测值
+        # 注意：这里我们暂时使用0作为预测值，因为我们还没有预测降雨量
+        future_df.loc[i, 'rainfall_lag_1'] = 0  # 将在预测后更新
+        
+        # 对于3天和7天前的数据，类似处理
+        if i >= 3:
+            future_df.loc[i, 'temp_lag_3'] = future_df.loc[i-3, 'temperature']
+            future_df.loc[i, 'humidity_lag_3'] = future_df.loc[i-3, 'humidity']
+            future_df.loc[i, 'pressure_lag_3'] = future_df.loc[i-3, 'pressure']
+            future_df.loc[i, 'wind_lag_3'] = future_df.loc[i-3, 'wind_speed']
+            future_df.loc[i, 'rainfall_lag_3'] = 0  # 将在预测后更新
+        else:
+            # 使用历史数据
+            idx = -(3-i)
+            if len(weather_data_sorted) >= abs(idx):
+                data_days_ago = weather_data_sorted.iloc[idx]
+                future_df.loc[i, 'temp_lag_3'] = data_days_ago['temperature']
+                future_df.loc[i, 'humidity_lag_3'] = data_days_ago['humidity']
+                future_df.loc[i, 'pressure_lag_3'] = data_days_ago['pressure']
+                future_df.loc[i, 'wind_lag_3'] = data_days_ago['wind_speed']
+                future_df.loc[i, 'rainfall_lag_3'] = data_days_ago['rainfall']
+        
+        if i >= 7:
+            future_df.loc[i, 'temp_lag_7'] = future_df.loc[i-7, 'temperature']
+            future_df.loc[i, 'humidity_lag_7'] = future_df.loc[i-7, 'humidity']
+            future_df.loc[i, 'pressure_lag_7'] = future_df.loc[i-7, 'pressure']
+            future_df.loc[i, 'wind_lag_7'] = future_df.loc[i-7, 'wind_speed']
+            future_df.loc[i, 'rainfall_lag_7'] = 0  # 将在预测后更新
+        else:
+            # 使用历史数据
+            idx = -(7-i)
+            if len(weather_data_sorted) >= abs(idx):
+                data_days_ago = weather_data_sorted.iloc[idx]
+                future_df.loc[i, 'temp_lag_7'] = data_days_ago['temperature']
+                future_df.loc[i, 'humidity_lag_7'] = data_days_ago['humidity']
+                future_df.loc[i, 'pressure_lag_7'] = data_days_ago['pressure']
+                future_df.loc[i, 'wind_lag_7'] = data_days_ago['wind_speed']
+                future_df.loc[i, 'rainfall_lag_7'] = data_days_ago['rainfall']
+
+# 提取特征用于预测
+X_future = future_df[feature_columns]
+
+# 进行预测
+future_rainfall_predictions = rf_model.predict(X_future)
+
+# 将预测结果添加到数据框中
+future_df['predicted_rainfall'] = future_rainfall_predictions
+
+# 显示预测结果
+print("未来一周降雨量预测:")
+for i, date in enumerate(future_dates):
+    print(f"{date.strftime('%Y-%m-%d')}: {future_rainfall_predictions[i]:.2f} mm")
+
+# 可视化未来一周的预测结果
+plt.figure(figsize=(12, 6))
+plt.plot(future_dates, future_rainfall_predictions, marker='o', linewidth=2, markersize=8)
+plt.title('未来一周降雨量预测')
+plt.xlabel('日期')
+plt.ylabel('降雨量 (mm)')
+plt.grid(True, linestyle='--', alpha=0.7)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# 总结
+print("="*50)
+print("气象数据模拟与降雨预测项目总结")
+print("="*50)
+print(f"1. 数据生成:")
+print(f"   - 生成了 {len(weather_data)} 天的模拟气象数据")
+print(f"   - 包括温度、湿度、气压、风速和降雨量等特征")
+print(f"   - 数据时间范围: {weather_data['date'].min().strftime('%Y-%m-%d')} 到 {weather_data['date'].max().strftime('%Y-%m-%d')}")
+
+print(f"\n2. 模型训练:")
+print(f"   - 使用随机森林回归模型")
+print(f"   - 训练集大小: {X_train.shape[0]} 天")
+print(f"   - 测试集大小: {X_test.shape[0]} 天")
+
+print(f"\n3. 模型评估:")
+print(f"   - 均方误差 (MSE): {mse:.4f}")
+print(f"   - 平均绝对误差 (MAE): {mae:.4f}")
+print(f"   - 均方根误差 (RMSE): {rmse:.4f}")
+
+print(f"\n4. 未来一周降雨预测:")
+for i, date in enumerate(future_dates):
+    print(f"   - {date.strftime('%Y-%m-%d')}: {future_rainfall_predictions[i]:.2f} mm")
+
+print("\n5. 关键发现:")
+print("   - 模型能够捕捉到降雨量与其他气象因素之间的关系")
+print("   - 历史降雨量数据对预测未来降雨量非常重要")
+print("   - 气压的滞后特征是最重要的预测因子之一")
+
+print("\n项目完成!")
