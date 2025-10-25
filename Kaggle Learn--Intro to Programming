@@ -1,7 +1,44 @@
+一、算数和变量
+    1.输出字符串prnt("字符串")
+    2.计算print(直接运算)
+————————————————————————————————
+Operation	Symbol	Example
+Addition	+	1 + 2 = 3
+Subtraction	-	5 - 4 = 1
+Multiplication	*	2 * 4 = 8
+Division	/	6 / 3 = 2
+Exponent	**	3 ** 2 = 9
+————————————————————————————————
+    3.创建一个变量名并给它赋值。如
+        add = 3+4
+        print(add)
+    4.可定义多个变量并进行计算
+    5.Debugging: NameError检查变量名是否拼写正确，还是引用的变量名没有定义。
+二、函数
+    1.定义函数：注意冒号和缩进，return
+        （1）def 告诉python我们要建立一个函数了
+        （2）在函数的body部分要注意缩进，可以按四次空格，也可以按一次TAB键。每一行都要有缩进。
+    # Define the function
+    def add_three(input_var):
+        output_var = input_var + 3
+        return output_var
+    # 定义函数
+    def 函数名(输入变量):
+        返回值 = 输入变量的相关运算 
+        return 返回值
+    2.怎么调用函数？
+        定义一个新的变量放函数的输出值。新变量名 = 之前定义的函数（输入的变量）
+        随意提到函数时要在函数名后加上空的括号，空括号仅用于明确表示我们指的是一个函数，而不是变量或其他Python对象。即使该函数有参数，这些括号也应始终为空。
+# Run the function with 10 as input
+new_number = add_three(10)
+# Check that the value is 13, as expected
+print(new_number)
+    3.命名自己的函数时，要用小写，且单词之间不能用空格，要用下划线。
+    4.
 三、数据类型
-数据类型，将浮点数转换成整数，负数向上取整，正数向下取整。
-数据类型有strings(字符型),float(浮点型),integers(整型),booleans(布尔值)四种。
-If you multiply a string by a boolean with value True, it just returns that same string. 字符串*布尔值1，返回相同字符串。
+    1.数据类型，将浮点数转换成整数，负数向上取整，正数向下取整。
+    2.数据类型有strings(字符型),float(浮点型),integers(整型),booleans(布尔值)四种。
+    3.If you multiply a string by a boolean with value True, it just returns that same string. 字符串*布尔值1，返回相同字符串。
 And if you multiply a string by a boolean with value False, it returns an empty string (or a string with length zero).字符串*布尔值0，返回空字符串。
 四、条件函数（if）和条件判断
 赋值的时候用的符号是==
@@ -14,3 +51,4 @@ def 函数名(参数):
     else:
         返回结果3
     return 结果
+五、
