@@ -34,21 +34,37 @@ new_number = add_three(10)
 # Check that the value is 13, as expected
 print(new_number)
     3.命名自己的函数时，要用小写，且单词之间不能用空格，要用下划线。
-    4.
+    4.最好的学习方法是看大量代码。
+    5.可以调用的变量只有定义的函数中return后边的变量，也就是在函数定义过程中要返回的变量。在函数定义过程中命名的变量名会报错“NameError”。
+    6.定义在函数外部的变量可以全局调用。
+    7.在一个函数里定义多个变量，变量之间用逗号隔开，调用函数时要给定义的变量一一赋值。
+    8.函数定义时可以没有arguments，但是要有括号和冒号。
 三、数据类型
     1.数据类型，将浮点数转换成整数，负数向上取整，正数向下取整。
     2.数据类型有strings(字符型),float(浮点型),integers(整型),booleans(布尔值)四种。
     3.If you multiply a string by a boolean with value True, it just returns that same string. 字符串*布尔值1，返回相同字符串。
 And if you multiply a string by a boolean with value False, it returns an empty string (or a string with length zero).字符串*布尔值0，返回空字符串。
 四、条件函数（if）和条件判断
-赋值的时候用的符号是==
-多重条件判定：
-def 函数名(参数):
-    if 条件1:
-        返回结果1
-    elif 条件2:
-        返回结果2
-    else:
-        返回结果3
-    return 结果
-五、
+    1.赋值的时候用的符号是==
+    2.多重条件判定：
+        def 函数名(参数):
+            if 条件1:
+            返回结果1
+        elif 条件2:
+            返回结果2
+        else:
+            返回结果3
+        return 结果
+    3.注意冒号和缩进。
+五、List列表
+    1.list = ["字符串1", "字符串2",...,"字符串n"]
+    2.列表，方括号括起来，里边的字符串用引号引起来，用逗号分开
+    3.list的好处①获得items的明确位置②检查数量③增加或移走items
+    4.计数：print(len(list))
+    5.索引index：返回索引位置list[0]等
+    6.切片slice：前三个[:3] 后两个[-2:]
+    7.移走remove：list.remove("")
+    8.增加addend:list.addend("")
+    9.除了字符串，list里可以放float,integers,booleans
+    10.聚合min(), max(), sum()
+    11.分隔开split(",")
