@@ -1,0 +1,419 @@
+【kaggle】【learn】【数据可视化】Data Visualization！
+这可真的是保姆级教程了！太详细了！
+一、Hello, Seaborn
+• 教程面向无经验的编程者，内容包括text、code、output(文本、代码和输出)
+• 首先要设置notebook
+# 先设置环境，注意返回Setup Complete设置完成。
+import pandas as pd
+pd.plotting.register_matplotlib_converters()
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+print("Setup Complete")
+（一）加载数据
+• 用六个国家的历史 FIFA 排名数据集进行分析。阿根廷、巴西、西班牙、法国、德国和意大利（Argentina (ARG), Brazil (BRA), Spain (ESP), France (FRA), Germany (GER), and Italy (ITA).）原始数据是CSV文件，就是逗号分隔文件，可以用excel打开查看一下。
+• 为了加载数据集要采用两步
+  • 指定数据集可以访问的位置/文件路径
+  • 利用文件路径加载数据集到notebook里
+# 文件读取路径。Path of the file to read
+fifa_filepath = "../input/fifa.csv"
+
+# 将读取路径放到变量里。Read the file into a variable fifa_data
+fifa_data = pd.read_csv(fifa_filepath, index_col="Date", parse_dates=True)
+
+'''fifa_filepath 数据集的文件路径,
+ index_col="Date" 用作行标签的列, 第一列的每个条目表示不同的行/设置为索引的列
+ parse_dates=True 识别作为日期的行标签，告诉notebook将每行标签理解为日期'''
+（二）查看数据 Examine the data
+• 以确保数据集加载正常。
+• .head() 查看前五行
+（三）绘制数据图 Plot the data
+• 太牛了一行代码就能画一张图
+• 生成折线图
+# 设置图的宽和高 Set the width and height of the figure
+plt.figure(figsize=(16,6))
+
+# 线图显示FIFA排行榜随着时间的变化。Line chart showing how FIFA rankings evolved over time 
+sns.lineplot(data=fifa_data)
+（四）练习
+1. 探索答案是否正确
+2. 加载数据
+  1. 回忆注释和代码的不同
+  2. 运行注释不会输出任何东西
+3. 绘图
+二、线图 Line Charts
+（一）设置notebook
+import pandas as pd
+pd.plotting.register_matplotlib_converters()
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+print("Setup Complete")
+ （二）选择数据集
+• 数据集追踪了音乐流媒体服务 Spotify 的全球每日流媒体流量。我们重点介绍 2017 年和 2018 年的五首热门歌曲："Shape of You", 
+ "Despacito", 
+ "Something Just Like This", "HUMBLE.", 
+ "Unforgettable"。按时间排列的，有一些缺失值是因为这些歌是后来发布的。
+# 文件读取路径。Path of the file to read
+spotify_filepath = "../input/spotify.csv"
+
+# Read the file into a variable spotify_data
+spotify_data = pd.read_csv(spotify_filepath, index_col="Date", parse_dates=True)
+• 加载数据集
+• 探索数据集
+  • .head()查看前五行。
+  • .tail()查看后五行
+• 数据的逻辑没问题，就可以开始绘图了！
+（三）绘图 Plot the data
+• 只需要一行代码就能画图
+# Line chart showing daily global streams of each song 
+sns.lineplot(data=spotify_data)
+• 这行代码有两个主要部分
+  • sns.lineplot告诉notebook要创建一个折线图
+    • sns表明命令来自seaborn库
+    • sns.barplot制作条形图
+    • sns.heatmap制作热力图
+  • data=spotify_data选择将用于创建图表的数据
+• 修改图表的大小和标题，也可以一行完成！
+• 设置画布尺寸
+• 设置画布标题
+# 设置图表的宽和高。Set the width and height of the figure
+plt.figure(figsize=(14,6))
+
+# 添加标题。Add title
+plt.title("Daily Global Streams of Popular Songs in 2017-2018")
+
+# 展示每日细节。Line chart showing daily global streams of each song 
+sns.lineplot(data=spotify_data)
+（四）绘制数据的子集 Plot a subset of the data
+• 先打印所有列名。应用到其他数据，只需要更换数据名。
+# 打印所有的列名。
+list(spotify_data.columns)
+• 绘制数据集前两列的线
+# 设置画布大小 Set the width and height of the figure
+plt.figure(figsize=(14,6))
+
+# 添加标题 Add title
+plt.title("Daily Global Streams of Popular Songs in 2017-2018")
+
+# 展示第一列的趋势线 Line chart showing daily global streams of 'Shape of You'
+sns.lineplot(data=spotify_data['Shape of You'], label="Shape of You")
+
+# 展示第二列的趋势线 Line chart showing daily global streams of 'Despacito'
+sns.lineplot(data=spotify_data['Despacito'], label="Despacito")
+
+# 添加水平轴/x轴的标签 Add label for horizontal axis
+plt.xlabel("Date")
+• sns.lineplot(data=spotify_data['Shape of You'], label="Shape of You")
+  • 一般来说，是绘制单一列的通用方式。
+  • 还添加了标签
+（五）练习
+1. 加载数据
+# Path of the file to read
+museum_filepath = "../input/museum_visitors.csv"
+
+# Fill in the line below to read the file into a variable museum_data
+museum_data = pd.read_csv(museum_filepath, index_col='Date', parse_dates=True)
+2. 查看第三列的倒数第五个数字
+  1. 我想的是怎么按照行列提取数据
+  2. 实际答案是考察.tail()，先查看后五行的数据，再填空
+三、直方图和热图 Bar Charts and Heatmaps
+（一）准备notebook
+绘图用的三个库pd, plt, sns
+import pandas as pd
+pd.plotting.register_matplotlib_converters()
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+print("Setup Complete")
+（二）选择数据集
+• 用美国交通部的跟踪航班延误的数据集
+  • 数字代表月份，1=1月，2=2月，…
+  • 每个条目显示的是不同航空公司和月份的平均到达延误，负数代表的是提前到达（这有点反常识，但是这个表是延误表）
+（三）加载数据
+• 还是用pd.read_csv() 加载数据集
+  • 数据集的文件路径
+  • 数据集用于索引行的列名
+• 用一行代码打印整个数据集
+  • 适用于数据集规模小的情况
+  • 就是用于读取数据集的那个变量，直接输入这个变量就能打印整个数据集
+# 数据路径。Path of the file to read
+flight_filepath = "../input/flight_delays.csv"
+
+# 读取数据的变量。Read the file into a variable flight_data
+flight_data = pd.read_csv(flight_filepath, index_col="Month")
+
+# 打印数据查看数据情况。因为数据集规模小，所以一行就能打印
+flight_data
+（四）条形图 Bar chart
+• 显示Spirit Airlines（ 航空公司代码：NK）航班按月的平均到达延迟
+# 设置画布大小 Set the width and height of the figure
+plt.figure(figsize=(10,6))
+
+# 添加标题 Add title
+plt.title("Average Arrival Delay for Spirit Airlines Flights, by Month")
+
+# 绘制条形图显示NK公司按月的航班延误率 Bar chart showing average arrival delay for Spirit Airlines flights by month
+sns.barplot(x=flight_data.index, y=flight_data['NK'])
+
+# 为纵轴添加标签 Add label for vertical axis
+plt.ylabel("Arrival delay (in minutes)")
+• 创建柱形图的代码是新的：sns.barplot(x=flight_data.index, y=flight_data['NK'])
+  • sns.barplot--告诉notebook要创建柱形图
+    • sns是seaborn包，在该课程所有绘图前缀都是sns
+  • x=flight_data.index--x轴是索引
+  • y=flight_data['NK']--y轴是 'NK' 列，决定每条的高度
+  • 必须用flight_data.index的索引列，不能用flight_data['Month'], 因为会报错。因为加载数据集时，'Month' 被用来索引行。
+（五）热力图 Heatmap
+• 热力图可以快速可视化数据集的模式
+# 设置画布大小 Set the width and height of the figure
+plt.figure(figsize=(14,7))
+
+# 添加标题 Add title
+plt.title("Average Arrival Delay for Each Airline, by Month")
+
+# Heatmap showing average arrival delay for each airline by month
+sns.heatmap(data=flight_data, annot=True)
+
+# 添加横轴标签Add label for horizontal axis
+plt.xlabel("Airline")
+• 创建热力图的代码包含三部分：sns.heatmap(data=flight_data, annot=True)
+  • sns.heatmap--告诉notebook要绘制热力图
+  • data=flight_data--所用的数据
+  • annot=True--确保每个单元格的值出现在图表上
+• 能看出9-11月几乎所有单元格颜色深，表明航班在这几个月更准时
+（六）练习
+1. 加载数据集
+2. 查看数据
+3. 获取某行的最大值（非考察，题目是填空题，又烧脑了）
+  1. 提取特定行的最大值：df.loc[行标签].max()
+  2. 获得每行最大值的 Series（带行标签）：df.max(axis=1)
+4.  哪个平台表现最好（柱形图）
+5. 查看结合起来的分数（热力图）
+四、散点图 Scatter Plots
+（一）准备工作
+•  设置notebook（引入库）
+• 加载和验证数据集
+  • 一个合成的保险费用数据集，看看是否能理解为什么一些客户支付费用比其他人高。
+
+# 1.设置notebook
+import pandas as pd
+pd.plotting.register_matplotlib_converters()
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+print("Setup Complete")
+
+# 2.加载并查看数据集
+insurance_filepath = "../input/insurance.csv"
+
+insurance_data = pd.read_csv(insurance_filepath)
+
+# 3.查看前五行看是否正确加载
+insurance_data.head()
+（二）散点图
+• 绘制简单的散点图
+  • 用sns.scatterplot绘制简单散点图
+  • x轴是BMI，y轴是费用
+# 绘制散点图
+sns.scatterplot(x=insurance_data['bmi'], y=insurance_data['charges'])
+
+#添加一条回归线
+sns.regplot(x=insurance_data['bmi'], y=insurance_data['charges'])
+• 显示BMI和费用呈正相关关系，这很合理，因为高BMI与慢性疾病有关。
+• 为了再次验证，可以加一条回归线。sns.regplot(x=insurance_data['bmi'], y=insurance_data['charges'])
+（三）颜色编码的散点图
+• 表示三个变量之间的关系，用颜色编码散点图
+• 为理解“吸烟”如何影响BMI与保险费用的关系，用'smoker'标记
+  • 结果显示，虽然非吸烟者会随BMI增加而增加保险费用，但吸烟者也会。所以可以绘制两条回归线，分别代表吸烟者和非吸烟者
+• sns.lmplot添加两条回归线
+# color-coding颜色编码
+sns.scatterplot(x=insurance_data['bmi'], y=insurance_data['charges'], hue=insurance_data['smoker'])
+
+# 绘制两条回归线。
+# 先指定列名，再指定数据来自数据集data=insurance_data
+sns.lmplot(x="bmi", y="charges", hue="smoker", data=insurance_data)
+• 分类散点图。通常用散点图表示两个连续变量之间的关系。在主轴上加一个类别变量，就变成了分离散点图。大概长这个样子。
+
+• 这张图显示了，平均来说，吸烟者的支付费用高于非吸烟者；支付最高的是吸烟者，支付最低的是非吸烟者。
+• sns.swarmplot
+sns.swarmplot(x=insurance_data['smoker'],
+              y=insurance_data['charges'])
+（四）练习
+你为一个糖果生产商工作，目标是产出一个报告，用于引导下一个产品的设计。数据有83行*13列，数据解释如下：
+• 'competitorname' 包括candy bar的名字.
+• 后9列(从 'chocolate'到 'pluribus') 描述糖果。比如chocolate 列有 "Yes"，没有就是“No”
+• 'sugarpercent' 糖含量，越高数值越高。
+• 'pricepercent'单位价格相对于数据集中其他糖果的价格
+• 'winpercent' 根据调查结果计算的;数值越高，该糖果在调查受访者中更受欢迎。
+1. 发现加了回归线之后，会发现一些相关关系，只是从散点图上是看不出来的，如果是三个变量的散点图，加了颜色之后确实能区别出第三个分类变量对两个连续型变量关系的影响。
+2. 但是有个问题要注意：该数据集规模小，不能对得出的模式过于信任！为了增加信任，应该增加样本量。
+五、分布Distributions
+创建直方图和密度图histograms and density plots。
+（一）准备工作
+•  设置notebook
+import pandas as pd
+pd.plotting.register_matplotlib_converters()
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+print("Setup Complete")
+•  加载和验证数据集【居然是鸢尾花数据集！】
+  • 花萼长 花萼宽 花瓣长 花瓣宽 种类
+# Path of the file to read
+iris_filepath = "../input/iris.csv"
+
+# Read the file into a variable iris_data
+iris_data = pd.read_csv(iris_filepath, index_col="Id")
+
+# 打印前五行数据查看下。Print the first 5 rows of the data
+iris_data.head()
+（二）直方图 Histograms
+• sns.histplot 绘制直方图
+# 观测花瓣长度变化。Histogram 
+sns.histplot(iris_data['Petal Length (cm)'])
+（三）密度图 Density plots
+• 核密度估计图kernel density estimate (KDE)，如果不熟，可视为平滑直方图
+• sns.kdeplot绘制KDE图，设置shade=True，可以给曲线下边设置阴影。
+# KDE plot 
+sns.kdeplot(data=iris_data['Petal Length (cm)'], shade=True)
+（四）2D KDE图
+• 不局限于单一列，用sns.joinplot创建2D的KDE图
+  • 展示了不同花萼宽度和花瓣长度组合的可能性
+  • 图顶的曲线是 x 轴数据的 KDE 图（此处为 iris_data['Petal Length （cm）']）
+  • 图右侧的曲线是 y 轴数据的 KDE 图（此处为 iris_data['Sepal 宽度 （cm）']）
+# 2D KDE plot
+sns.jointplot(x=iris_data['Petal Length (cm)'], y=iris_data['Sepal Width (cm)'], kind="kde")
+• 返回的结果
+
+（五）颜色编码的图表
+• 绘制图表来理解物种之间的差异
+  • sns.hisplot创建三种不同的花瓣长度 'Petal Length (cm)' 的直方图
+  • data= 提供用来读取数据的变量名称
+  • x= 是想绘制的列名
+  • hue= 设置将用来将数据拆分成不同直方图的列
+# 每种花的直方图 Histograms for each species
+sns.histplot(data=iris_data, x='Petal Length (cm)', hue='Species')
+
+# 添加标题 Add title
+plt.title("Histogram of Petal Lengths, by Species")
+• sns.kdeplot为每个物种创建KDE图
+  • 设置的参数data, x, hue, shade
+# 每个物种的KDE图 KDE plots for each species
+sns.kdeplot(data=iris_data, x='Petal Length (cm)', hue='Species', shade=True)
+
+# 添加标题 Add title
+plt.title("Distribution of Petal Lengths, by Species")
+（六）练习
+1. 加载数据集--乳腺癌肿瘤细胞
+2. 查看数据集前五行——有31列数据。
+  1. 默认的第一列是Id，但不算在数据里，是索引。
+  2. 第二列是等级，其实是第一列数据，B表示良性benign，M表示恶性malignant。
+  3. 其他都是各种数值型变量
+3. 调查区别
+  4. 创建俩直方图，同时展示'Area (mean)'列B和M的分布。用一行代码表示
+  2. Diagnosis=B/M，是分类变量，所以应该作图有类别的颜色编码直方图。
+  3. 报错原因
+    1. 没想到有分类变量，所以也没想到用颜色编码
+    2. 变量名之间的空格没有打，所以报错
+    3. 数据集变量名输错
+    4. x用了列表，hue用了字符串，会报错。
+# Histograms for benign and maligant tumors 
+# 谁承想呢，居然因为一个是[]一个是字符串报错；也会因为字段名的空格没加而报错。我还以为是数据名打错了呢。
+sns.histplot(data=cancer_data, x='Area (mean)',hue='Diagnosis')
+  4.  由图表能看出B是正态分布，M是右侧拖尾的偏态分布。
+
+4. 非常有用的列
+  1. 创建两个 KDE 图，分别显示良性肿瘤和恶性肿瘤的“最差半径”值的分布。（为了便于比较，请在下面的代码单元格中创建一个包含这两个 KDE 图的图形。）
+# 绘制B和M的KDE图。KDE plots for benign and malignant tumors
+sns.kdeplot(data=cancer_data, x='Radius (worst)', hue='Diagnosis', shade=True)
+下图是返回的结果。
+
+六、选择图表类型和传统风格 Choosing Plot Types and Custom Styles
+（一）对前文所学的一个总结
+
+• 趋势——线图
+  • sns.lineplot
+• 关系
+  • sns.barplot条形图，比较不同组的数量
+  • sns.heatmap热力图：寻找颜色编码的模式
+  • sns.scatterplot散点图：显示两个连续变量之间的关系，如果用颜色编码，可以看到第三个类别变量之间的关系
+  • sns.regplot在散点图中加入回归线，看两个变量之间的线性关系
+  • sns.lmplot散点图包含多个颜色编码的群，适合绘制多条回归线
+  • sns.swarmplot类别散点图：显示连续变量与类别变量之间的关系
+• 分布——展示值或概率
+  • sns.histplot 直方图：显示单个数值变量的分布
+  • sns.kdeplot （二维）KDE图显示单个数值变量（或两个数值变量）的估计且平滑的分布。
+  • sns.jointplot 同时显示一个二维 KDE 图及每个变量对应的 KDE 图。
+（二）改变seaborn的风格
+• 搭建notebook
+• 加载数据集并生成图表
+• sns.set_style("dark")切换为黑色主题
+# 文件读取路径
+spotify_filepath = "../input/spotify.csv"
+
+# 设置读取变量 spotify_data
+spotify_data = pd.read_csv(spotify_filepath, index_col="Date", parse_dates=True)
+
+# 线图 Line chart 
+plt.figure(figsize=(12,6))
+sns.lineplot(data=spotify_data)
+
+# 改变风格为黑色主题 
+sns.set_style("dark")
+
+# 再看一下线图的变化 Line chart 
+plt.figure(figsize=(12,6))
+sns.lineplot(data=spotify_data)
+• Seaborn 有五种不同的主题：（1）“darkgrid”（2）“whitegrid”，（3）“dark”，（4）“white”，（5）“ticks”。分别是黑色网格，白色网格，黑色，白色，有坐标轴刻度线。
+（四）看一下white和ticks的区别
+先是white：白色背景，无网格线，无坐标轴刻度线
+
+再是ticks：白色背景，无网格线，有坐标轴刻度线
+
+（说实话我没看出来什么区别。）
+注意事项：切换主题时，必须重新运行绘图代码。
+七、最终项目 Final Project
+• 了解 Kaggle Datasets
+• 访问数据集：https://www.kaggle.com/datasets 
+  • 有很多数据类型：包括 CSV 文件，还有更为特殊的文件类型，如 JSON、SQLite 和 BigQuery。
+  • 可以搜索特定的数据集
+• 上传自己的数据集
+  • kaggle平台会自动将任何表格数据转换为 CSV 文件。
+练习——添加数据集；指定文件路径
+1. 搭建notebook
+import pandas as pd
+pd.plotting.register_matplotlib_converters()
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+print("Setup Complete")
+2. 将数据集附加到notebook上
+  1.  先选一个dataset，点开那个网页
+  2. 回到练习里，点input，点击Add input，找到选择的那个dataset，点+加号，可以添加到当前的notebook里。（并不是说添加到收藏里）
+3. 指定文件路径
+  3. 先点击想用的CSV文件，会打开一个预览图，可以在笔记本下方的标签页打开CSV文件，在顶部能找到该文件的路径
+  2. 必须用引号包住文件路径，否则会报错。
+# 必须用引号包裹路径，否则报错。
+my_filepath = '/kaggle/input/datasets/oddrationale/mnist-in-csv/mnist_train.csv'
+4. 加载并查看数据
+# Fill in the line below: Read the file into a variable my_data
+my_data = pd.read_csv(my_filepath)
+
+# 查看数据前五行
+my_data.head()
+5.  可视化
+  1. 本想绘制下直方图，或者热力图，发现运行时间还挺久的，不是马上就出答案的那种。
+八、创建自己的notebook
+1. 在code界面，+ New Notebook
+2. 选择File > Language，选择python
+3. 默认代码删掉，替换下面的代码
+# 这个代码可以代替默认代码，建立自己的工作流程。
+import pandas as pd
+pd.plotting.register_matplotlib_converters()
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+print("Setup Complete")
+4.  加载数据集，写代码来可视化
+5. 生成图形后，只需将其保存为图片文件，方便添加到演示中。
